@@ -1,0 +1,28 @@
+# Dependencies
+node_modules/
+
+# Build & Output Directories
+dist/
+build/
+
+# Environment Files & Secrets
+.env
+.env.local
+.env.*.local
+.env.development
+.env.production
+!.env.example
+
+# Python Cache & Compiled Files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Python Virtual Environments
+.venv/
+venv/
+ENV/
+
+# Logs & System Files
+*.log
+.DS_Store
