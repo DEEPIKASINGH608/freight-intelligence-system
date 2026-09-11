@@ -73,84 +73,18 @@ class DecisionEngine:
             # 2. EXTRACT INPUTS
             # ============================================================
 
-            cargo_qty = float(
-                data.get(
-                    "cargo_quantity_tons",
-                    75000
-                )
-            )
-
-            current_rate = float(
-                data.get(
-                    "current_freight_rate",
-                    22.50
-                )
-            )
-
-            fuel_price = float(
-                data.get(
-                    "bunker_fuel_price",
-                    620.0
-                )
-            )
-
-            cargo_demand_index = float(
-                data.get(
-                    "cargo_demand_index",
-                    105.0
-                )
-            )
-
-            vessel_availability_index = float(
-                data.get(
-                    "vessel_availability_index",
-                    92.0
-                )
-            )
-
-            congestion_days = float(
-                data.get(
-                    "port_congestion_days",
-                    2.5
-                )
-            )
-
-            weather_risk = float(
-                data.get(
-                    "weather_risk_index",
-                    1.1
-                )
-            )
-
-            destination_port = data.get(
-                "destination",
-                "Paradip"
-            )
-
-            cargo_type = data.get(
-                "cargo_type",
-                "iron_ore"
-            )
-
-            delivery_deadline_days = float(
-                data.get(
-                    "delivery_deadline_days",
-                    25.0
-                )
-            )
-
-            route_distance_nm = float(
-                data.get(
-                    "route_distance_nm",
-                    3850.0
-                )
-            )
-
-            historical_rates = data.get(
-                "historical_rates",
-                []
-            )
-
+            cargo_qty = float(data.get("cargo_qty", 75000))
+            current_rate = float(data.get("current_rate", 22.50))
+            fuel_price = float(data.get("bunker_fuel", 620.0))
+            cargo_demand_index = float(data.get("cargo_demand", 105.0))
+            vessel_availability_index = float(data.get("vessel_availability", 92.0))
+            congestion_days = float(data.get("congestion_days", 2.5))
+            weather_risk = float(data.get("weather_index", 1.1))
+            destination_port = data.get("destination", "Paradip")
+            cargo_type = data.get("cargo_type", "iron_ore")
+            delivery_deadline_days = float(data.get("delivery_deadline_days", 25.0))
+            route_distance_nm = float(data.get("distance_nm", 3850.0))
+            historical_rates = data.get("historical_rates", [])
             # ============================================================
             # 3. REAL ML FREIGHT FORECAST
             # ============================================================
