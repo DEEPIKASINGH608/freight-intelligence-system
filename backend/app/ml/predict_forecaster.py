@@ -37,7 +37,6 @@ class FreightForecaster:
     TARGET_COLUMN = "target_rate_30d"
 
     def __init__(self, model_path: Optional[str] = None):
-
         project_root = Path(__file__).resolve().parents[3]
 
         self.model_path = (
@@ -64,7 +63,6 @@ class FreightForecaster:
             )
 
         self.model = joblib.load(self.model_path)
-
         self.data = pd.read_csv(self.data_path)
 
         if "date" in self.data.columns:
@@ -81,13 +79,11 @@ class FreightForecaster:
 
         # Validate trained model feature structure.
         if hasattr(self.model, "feature_names_in_"):
-
             trained_features = list(
                 self.model.feature_names_in_
             )
 
             if trained_features != self.FEATURE_COLUMNS:
-
                 raise ValueError(
                     "Model feature mismatch.\n"
                     f"Expected: {self.FEATURE_COLUMNS}\n"
@@ -100,7 +96,6 @@ class FreightForecaster:
     ) -> List[float]:
 
         if historical_rates and len(historical_rates) >= 14:
-
             rates = [
                 float(rate)
                 for rate in historical_rates
@@ -128,7 +123,6 @@ class FreightForecaster:
         return rates[-14:]
 
     def _prepare_holdout_data(self):
-
         required_columns = (
             self.FEATURE_COLUMNS
             + [self.TARGET_COLUMN]
@@ -146,12 +140,14 @@ class FreightForecaster:
                 f"{missing_columns}"
             )
 
-        df = self.data[
-            required_columns
-        ].replace(
-            [np.inf, -np.inf],
-            np.nan,
-        ).dropna()
+        df = (
+            self.data[required_columns]
+            .replace(
+                [np.inf, -np.inf],
+                np.nan,
+            )
+            .dropna()
+        )
 
         if len(df) < 30:
             return None
@@ -334,7 +330,6 @@ class FreightForecaster:
         # Use latest recorded fuel price as
         # the lagged fuel feature.
         if "bunker_fuel_price_usd" in self.data.columns:
-
             fuel_history = (
                 self.data[
                     "bunker_fuel_price_usd"
@@ -349,9 +344,7 @@ class FreightForecaster:
                 if fuel_history
                 else float(bunker_fuel)
             )
-
         else:
-
             fuel_price_lag_1 = float(
                 bunker_fuel
             )
@@ -359,7 +352,6 @@ class FreightForecaster:
         # Use the latest available dataset date
         # as the reference for the target month.
         if "date" in self.data.columns:
-
             dates = (
                 pd.to_datetime(
                     self.data["date"],
@@ -369,21 +361,16 @@ class FreightForecaster:
             )
 
             if not dates.empty:
-
                 target_date = (
                     dates.max()
                     + pd.Timedelta(days=30)
                 )
-
             else:
-
                 target_date = (
                     pd.Timestamp.today()
                     + pd.Timedelta(days=30)
                 )
-
         else:
-
             target_date = (
                 pd.Timestamp.today()
                 + pd.Timedelta(days=30)
@@ -409,35 +396,26 @@ class FreightForecaster:
             "freight_rate_usd_per_ton": float(
                 current_rate
             ),
-
             "bunker_fuel_price_usd": float(
                 bunker_fuel
             ),
-
             "cargo_demand_index": float(
                 cargo_demand
             ),
-
             "vessel_availability_index": float(
                 vessel_avail
             ),
-
             "port_congestion_days": float(
                 congestion_days
             ),
-
             "rate_lag_1": rate_lag_1,
             "rate_lag_7": rate_lag_7,
             "rate_lag_14": rate_lag_14,
-
             "rate_roll_7_mean": rate_roll_7_mean,
             "rate_roll_14_mean": rate_roll_14_mean,
             "rate_roll_7_std": rate_roll_7_std,
-
             "demand_vessel_ratio": demand_vessel_ratio,
-
             "fuel_price_lag_1": fuel_price_lag_1,
-
             "month_sin": month_sin,
             "month_cos": month_cos,
         }
@@ -479,19 +457,15 @@ class FreightForecaster:
 
         if percentage_change > 2:
             trend = "UPWARD"
-
         elif percentage_change < -2:
             trend = "DOWNWARD"
-
         else:
             trend = "STABLE"
 
         if percentage_change >= 5:
             recommendation = "CHARTER NOW"
-
         elif percentage_change <= -5:
             recommendation = "WAIT"
-
         else:
             recommendation = "WATCH"
 
@@ -510,7 +484,6 @@ class FreightForecaster:
         forecast_range = None
 
         if uncertainty is not None:
-
             lower_bound = (
                 prediction
                 + uncertainty[
@@ -553,16 +526,93 @@ class FreightForecaster:
                 ),
             }
 
+        # -----------------------------------------------------
+        # FORECAST CURVE FOR DASHBOARD
+        # -----------------------------------------------------
+
+        if forecast_range is not None:
+            forecast_curve = [
+                {
+                    "day": 0,
+                    "forecast": round(
+                        float(current_rate),
+                        2,
+                    ),
+                    "lower": round(
+                        float(current_rate),
+                        2,
+                    ),
+                    "upper": round(
+                        float(current_rate),
+                        2,
+                    ),
+                },
+                {
+                    "day": 30,
+                    "forecast": round(
+                        float(prediction),
+                        2,
+                    ),
+                    "lower": round(
+                        float(
+                            forecast_range[
+                                "lower_usd"
+                            ]
+                        ),
+                        2,
+                    ),
+                    "upper": round(
+                        float(
+                            forecast_range[
+                                "upper_usd"
+                            ]
+                        ),
+                        2,
+                    ),
+                },
+            ]
+        else:
+            forecast_curve = [
+                {
+                    "day": 0,
+                    "forecast": round(
+                        float(current_rate),
+                        2,
+                    ),
+                    "lower": round(
+                        float(current_rate),
+                        2,
+                    ),
+                    "upper": round(
+                        float(current_rate),
+                        2,
+                    ),
+                },
+                {
+                    "day": 30,
+                    "forecast": round(
+                        float(prediction),
+                        2,
+                    ),
+                    "lower": round(
+                        float(prediction),
+                        2,
+                    ),
+                    "upper": round(
+                        float(prediction),
+                        2,
+                    ),
+                },
+            ]
+
         return {
             "model_info": {
                 "model_type": type(
                     self.model
                 ).__name__,
-
                 "feature_count": len(
                     self.FEATURE_COLUMNS
                 ),
-
                 "model_path": str(
                     self.model_path
                 ),
@@ -591,6 +641,8 @@ class FreightForecaster:
             "trend": trend,
 
             "forecast_range": forecast_range,
+
+            "forecast_curve": forecast_curve,
 
             "forecast_range_note": (
                 "90% empirical forecast interval "

@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import FreightForecastChart from "./components/charts/FreightForecastChart";
 
 import {
   Ship,
@@ -11,7 +12,6 @@ import {
   Activity,
   Clock,
   DollarSign,
-  XCircle,
 } from 'lucide-react';
 
 import { evaluateDecision } from './services/api';
@@ -110,69 +110,87 @@ export default function App() {
       ? risk.risk_score
       : null;
 
-  const currentRate =
-    Number(
-      forecast?.current_rate_usd_ton ??
-      financial?.current_rate_usd_ton ??
-      formData.current_rate
-    );
+  /* ---------------- FORECAST ---------------- */
 
-  const forecastRate =
-    Number(
-      forecast?.predicted_rate_usd_ton ??
-      forecast?.forecasted_30d_rate_usd ??
-      financial?.forecast_rate_usd_ton ??
-      currentRate
-    );
+  const currentRate = Number(
+    forecast?.current_rate_usd ??
+    financial?.current_spot_rate_usd ??
+    formData.current_rate
+  );
+
+  const forecastRate = Number(
+    forecast?.predicted_30d_rate_usd ??
+    financial?.forecast_rate_usd_ton ??
+    currentRate
+  );
 
   const rateChange =
-    typeof forecast?.rate_change_pct === 'number'
-      ? forecast.rate_change_pct
+    typeof forecast?.percentage_change === 'number'
+      ? forecast.percentage_change
       : currentRate
         ? ((forecastRate - currentRate) / currentRate) * 100
         : 0;
 
+  /*
+   * Backend returns:
+   * forecast_range: {
+   *   lower_usd,
+   *   upper_usd
+   * }
+   */
+
   const bandLow =
-    forecast?.prediction_interval_90?.low ??
-    forecast?.band_low ??
-    null;
+    forecast?.forecast_range?.lower_usd ?? null;
 
   const bandHigh =
-    forecast?.prediction_interval_90?.high ??
-    forecast?.band_high ??
-    null;
+    forecast?.forecast_range?.upper_usd ?? null;
+
+  /* ---------------- VESSEL ---------------- */
+
+  /*
+   * Backend returns selected_vessels as an array.
+   */
 
   const selectedVessel =
-    charter?.selected_vessel ||
-    charter?.recommended_vessel ||
-    null;
+    charter?.selected_vessels?.length > 0
+      ? charter.selected_vessels[0]
+      : null;
 
   const vesselName =
-    selectedVessel?.name ||
-    charter?.recommended_vessel_name ||
-    'No vessel selected';
+    selectedVessel?.name || 'No vessel selected';
 
   const vesselClass =
-    selectedVessel?.vessel_class ||
-    charter?.recommended_vessel_class ||
-    '—';
+    selectedVessel?.vessel_class || '—';
 
   const vesselStatus =
+    selectedVessel?.availability_status ||
     charter?.status ||
     'UNKNOWN';
 
+  /*
+   * Backend's total cost is at charter level.
+   */
+
   const totalVesselCost =
     charter?.total_cost_usd ??
-    charter?.total_vessel_cost_usd ??
+    selectedVessel?.voyage_cost_usd ??
     null;
 
+  /*
+   * Backend's operational duration is inside selected vessel.
+   */
+
   const operationalDays =
-    charter?.total_operational_days ??
-    charter?.estimated_duration_days ??
+    selectedVessel?.total_operational_days ??
+    charter?.max_delivery_days ??
     null;
 
   const formatNumber = (value, digits = 1) => {
-    if (value === null || value === undefined || value === '') {
+    if (
+      value === null ||
+      value === undefined ||
+      value === ''
+    ) {
       return '—';
     }
 
@@ -189,7 +207,11 @@ export default function App() {
   };
 
   const formatCurrency = (value, digits = 2) => {
-    if (value === null || value === undefined || value === '') {
+    if (
+      value === null ||
+      value === undefined ||
+      value === ''
+    ) {
       return '—';
     }
 
@@ -269,6 +291,7 @@ export default function App() {
       <div className="max-w-6xl mx-auto space-y-6">
 
         {/* HEADER */}
+
         <header className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 pb-4 border-b border-slate-800">
           <div className="flex items-center space-x-3">
             <Ship className="w-8 h-8 text-blue-400" />
@@ -286,11 +309,15 @@ export default function App() {
 
           <div className="flex items-center space-x-2 text-xs bg-slate-800/80 border border-slate-700 px-3 py-1.5 rounded-full text-slate-300">
             <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-            <span>{loading ? 'ENGINE RUNNING' : 'SYSTEM ACTIVE'}</span>
+
+            <span>
+              {loading ? 'ENGINE RUNNING' : 'SYSTEM ACTIVE'}
+            </span>
           </div>
         </header>
 
         {/* WHAT-IF SIMULATOR */}
+
         <details
           className="bg-slate-900/60 border border-slate-800 rounded-xl overflow-hidden"
           open
@@ -298,6 +325,7 @@ export default function App() {
           <summary className="p-4 text-xs font-semibold uppercase tracking-wider text-slate-400 cursor-pointer flex justify-between items-center">
             <span className="flex items-center space-x-2">
               <Sliders className="w-4 h-4 text-blue-400" />
+
               <span className="text-blue-400 font-bold">
                 What-If Scenario Simulator
               </span>
@@ -311,6 +339,7 @@ export default function App() {
           <div className="p-4 border-t border-slate-800 grid grid-cols-1 md:grid-cols-3 gap-6 text-xs bg-slate-950/40">
 
             {/* Freight */}
+
             <div className="space-y-2">
               <div className="flex justify-between text-slate-400">
                 <label>Freight Rate ($/t)</label>
@@ -338,6 +367,7 @@ export default function App() {
             </div>
 
             {/* Fuel */}
+
             <div className="space-y-2">
               <div className="flex justify-between text-slate-400">
                 <label>Bunker Fuel ($/t)</label>
@@ -365,6 +395,7 @@ export default function App() {
             </div>
 
             {/* Congestion */}
+
             <div className="space-y-2">
               <div className="flex justify-between text-slate-400">
                 <label>Port Congestion (Days)</label>
@@ -392,6 +423,7 @@ export default function App() {
             </div>
 
             {/* Demand */}
+
             <div className="space-y-2">
               <div className="flex justify-between text-slate-400">
                 <label>Cargo Demand Index</label>
@@ -419,6 +451,7 @@ export default function App() {
             </div>
 
             {/* Vessel Availability */}
+
             <div className="space-y-2">
               <div className="flex justify-between text-slate-400">
                 <label>Vessel Availability Index</label>
@@ -446,6 +479,7 @@ export default function App() {
             </div>
 
             {/* Weather */}
+
             <div className="space-y-2">
               <div className="flex justify-between text-slate-400">
                 <label>Weather Risk Index</label>
@@ -473,6 +507,7 @@ export default function App() {
             </div>
 
             {/* Deadline */}
+
             <div className="space-y-2">
               <div className="flex justify-between text-slate-400">
                 <label>Delivery Deadline (Days)</label>
@@ -500,6 +535,7 @@ export default function App() {
             </div>
 
             {/* Cargo */}
+
             <div className="space-y-2">
               <div className="flex justify-between text-slate-400">
                 <label>Cargo Quantity (tons)</label>
@@ -539,7 +575,9 @@ export default function App() {
                 <Activity className="w-3.5 h-3.5" />
 
                 <span>
-                  {loading ? 'Running Engine...' : 'Run Simulation Engine'}
+                  {loading
+                    ? 'Running Engine...'
+                    : 'Run Simulation Engine'}
                 </span>
               </button>
             </div>
@@ -547,6 +585,7 @@ export default function App() {
         </details>
 
         {/* ERROR */}
+
         {error && (
           <div className="bg-red-500/10 border border-red-500/30 text-red-400 p-4 rounded-xl flex items-center space-x-3 text-sm">
             <AlertTriangle className="w-5 h-5 flex-shrink-0" />
@@ -564,6 +603,7 @@ export default function App() {
         )}
 
         {/* ROUTE OVERVIEW */}
+
         <div className="bg-slate-900/80 border border-slate-800 rounded-xl p-5 grid grid-cols-1 md:grid-cols-4 gap-6 text-center">
 
           <div>
@@ -616,12 +656,15 @@ export default function App() {
         </div>
 
         {/* FORECAST */}
+
         <div className="bg-slate-900/80 border border-slate-800 rounded-xl p-6">
 
           <div className="flex items-center space-x-2 text-xs uppercase font-semibold text-slate-400 tracking-wider">
             <TrendingUp className="w-4 h-4 text-blue-400" />
+
             <span>AI Freight Forecast</span>
           </div>
+
 
           <div className="flex flex-col md:flex-row items-center justify-between gap-6 py-6">
 
@@ -662,27 +705,46 @@ export default function App() {
 
             <span className="font-mono text-slate-200">
               {bandLow !== null && bandHigh !== null
-                ? `$${formatNumber(bandLow, 2)} – $${formatNumber(bandHigh, 2)}/t`
+                ? `$${formatNumber(bandLow, 2)} – $${formatNumber(
+                  bandHigh,
+                  2
+                )}/t`
                 : 'Not available'}
             </span>
 
-            {forecast?.model_mae !== undefined && (
-              <span className="ml-4 text-slate-500">
-                Model MAE: {formatNumber(forecast.model_mae, 2)}
-              </span>
-            )}
+            {forecast?.baseline_comparison?.model_mae_usd !==
+              undefined && (
+                <span className="ml-4 text-slate-500">
+                  Model MAE:{' '}
+                  {formatNumber(
+                    forecast.baseline_comparison.model_mae_usd,
+                    2
+                  )}
+                </span>
+              )}
           </div>
         </div>
 
+
+        <FreightForecastChart
+          forecast={data?.forecast_module}
+        />
+
+
         {/* RISK + VESSEL */}
+
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
 
           {/* RISK */}
+
           <div className="bg-slate-900/80 border border-slate-800 rounded-xl p-6">
 
             <div className="flex justify-between items-center border-b border-slate-800 pb-3">
               <h2 className="text-xs uppercase font-semibold text-slate-400 tracking-wider flex items-center space-x-2">
-                <ShieldAlert className={`w-4 h-4 ${riskStyle.text}`} />
+                <ShieldAlert
+                  className={`w-4 h-4 ${riskStyle.text}`}
+                />
+
                 <span>Route Risk Engine</span>
               </h2>
 
@@ -696,8 +758,12 @@ export default function App() {
             <div className="flex justify-between items-center mt-5">
 
               <div>
-                <span className={`text-4xl font-black ${riskStyle.text}`}>
-                  {riskScore !== null ? riskScore.toFixed(1) : '—'}
+                <span
+                  className={`text-4xl font-black ${riskStyle.text}`}
+                >
+                  {riskScore !== null
+                    ? riskScore.toFixed(1)
+                    : '—'}
                 </span>
 
                 <span className="text-xs text-slate-400 font-mono">
@@ -706,24 +772,34 @@ export default function App() {
               </div>
 
               <div className="text-right text-xs space-y-2 text-slate-300">
+
                 <div>
                   Congestion:{' '}
                   <span className="font-semibold text-slate-100">
-                    {formatNumber(risk?.sub_scores?.congestion, 1)}
+                    {formatNumber(
+                      risk?.sub_scores?.congestion,
+                      1
+                    )}
                   </span>
                 </div>
 
                 <div>
                   Weather:{' '}
                   <span className="font-semibold text-slate-100">
-                    {formatNumber(risk?.sub_scores?.weather, 1)}
+                    {formatNumber(
+                      risk?.sub_scores?.weather,
+                      1
+                    )}
                   </span>
                 </div>
 
                 <div>
                   Supply:{' '}
                   <span className="font-semibold text-slate-100">
-                    {formatNumber(risk?.sub_scores?.supply_scarcity, 1)}
+                    {formatNumber(
+                      risk?.sub_scores?.supply_scarcity,
+                      1
+                    )}
                   </span>
                 </div>
               </div>
@@ -748,11 +824,14 @@ export default function App() {
           </div>
 
           {/* VESSEL */}
+
           <div className="bg-slate-900/80 border border-slate-800 rounded-xl p-6">
 
             <div className="flex justify-between items-center border-b border-slate-800 pb-3">
+
               <h2 className="text-xs uppercase font-semibold text-slate-400 tracking-wider flex items-center space-x-2">
                 <Ship className="w-4 h-4 text-blue-400" />
+
                 <span>Vessel Optimization</span>
               </h2>
 
@@ -801,14 +880,17 @@ export default function App() {
                     : '—'}
                 </div>
               </div>
+
             </div>
           </div>
         </div>
 
         {/* PORT CONSTRAINTS */}
+
         <div className="bg-slate-900/80 border border-slate-800 rounded-xl p-6">
 
           <div className="flex items-center space-x-2 border-b border-slate-800 pb-3">
+
             <CheckCircle className="w-4 h-4 text-emerald-400" />
 
             <h2 className="text-xs uppercase font-semibold text-slate-400 tracking-wider">
@@ -854,13 +936,20 @@ export default function App() {
               </div>
 
               <div className="text-sm font-semibold text-white mt-1">
-                {formatNumber(port?.distance_nm ?? formData.distance_nm, 0)} nm
+                {formatNumber(
+                  port?.route_distance_nm ??
+                  formData.distance_nm,
+                  0
+                )}{' '}
+                nm
               </div>
             </div>
+
           </div>
         </div>
 
         {/* PRIMARY DECISION */}
+
         <div
           className={`border-2 rounded-xl p-6 ${actionStyle.background} ${actionStyle.border}`}
         >
@@ -868,18 +957,23 @@ export default function App() {
           <div className="flex flex-col md:flex-row items-center justify-between gap-5">
 
             <div className="flex items-center space-x-3">
+
               <span className="text-3xl">
                 {actionStyle.icon}
               </span>
 
               <div>
+
                 <div className="text-xs uppercase text-slate-400 font-semibold">
                   AI Decision Engine
                 </div>
 
-                <h2 className={`text-3xl md:text-4xl font-black ${actionStyle.text}`}>
+                <h2
+                  className={`text-3xl md:text-4xl font-black ${actionStyle.text}`}
+                >
                   {recommendedAction}
                 </h2>
+
               </div>
             </div>
 
@@ -894,10 +988,17 @@ export default function App() {
 
               <div className="text-sm text-slate-300 mt-1">
                 Risk:{' '}
-                <span className={`font-bold ${riskStyle.text}`}>
-                  {riskLevel} ({riskScore !== null ? riskScore.toFixed(1) : '—'}/100)
+                <span
+                  className={`font-bold ${riskStyle.text}`}
+                >
+                  {riskLevel} (
+                  {riskScore !== null
+                    ? riskScore.toFixed(1)
+                    : '—'}
+                  /100)
                 </span>
               </div>
+
             </div>
           </div>
 
@@ -908,15 +1009,18 @@ export default function App() {
             </h3>
 
             <div className="bg-slate-950/60 border border-slate-800 rounded-lg p-4 text-sm text-slate-300 leading-relaxed">
-              {data?.reasoning || 'No reasoning returned by the decision engine.'}
+              {data?.reasoning ||
+                'No reasoning returned by the decision engine.'}
             </div>
           </div>
         </div>
 
         {/* FINANCIAL SCENARIOS */}
+
         <div className="bg-slate-900/80 border border-slate-800 rounded-xl p-6">
 
           <div className="flex items-center space-x-2 border-b border-slate-800 pb-3">
+
             <DollarSign className="w-4 h-4 text-blue-400" />
 
             <h2 className="text-xs uppercase font-semibold text-slate-400 tracking-wider">
@@ -927,34 +1031,53 @@ export default function App() {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-5">
 
             <div className="bg-slate-950/60 border border-slate-800 rounded-lg p-4">
+
               <div className="text-xs text-slate-500">
                 Book Now
               </div>
 
               <div className="text-2xl font-bold text-white mt-1">
-                ₹{formatNumber(scenario?.scenario_book_now_inr_cr, 2)} Cr
+                ₹
+                {formatNumber(
+                  scenario?.scenario_book_now_inr_cr,
+                  2
+                )}{' '}
+                Cr
               </div>
             </div>
 
             <div className="bg-slate-950/60 border border-slate-800 rounded-lg p-4">
+
               <div className="text-xs text-slate-500">
                 Wait 30 Days
               </div>
 
               <div className="text-2xl font-bold text-white mt-1">
-                ₹{formatNumber(scenario?.scenario_wait_30d_inr_cr, 2)} Cr
+                ₹
+                {formatNumber(
+                  scenario?.scenario_wait_30d_inr_cr,
+                  2
+                )}{' '}
+                Cr
               </div>
             </div>
 
             <div className="bg-slate-950/60 border border-slate-800 rounded-lg p-4">
+
               <div className="text-xs text-slate-500">
                 Exposure Delta
               </div>
 
               <div className="text-2xl font-bold text-blue-400 mt-1">
-                ₹{formatNumber(scenario?.exposure_delta_inr_cr, 2)} Cr
+                ₹
+                {formatNumber(
+                  scenario?.exposure_delta_inr_cr,
+                  2
+                )}{' '}
+                Cr
               </div>
             </div>
+
           </div>
 
           {scenario?.basis && (
@@ -965,6 +1088,7 @@ export default function App() {
         </div>
 
         {/* ENGINE STATUS */}
+
         <div className="flex flex-wrap gap-3 text-xs text-slate-400">
 
           <div className="flex items-center gap-2 bg-slate-900 border border-slate-800 rounded px-3 py-2">
@@ -991,6 +1115,7 @@ export default function App() {
             <Clock className="w-3.5 h-3.5 text-blue-400" />
             Live Decision Evaluation
           </div>
+
         </div>
 
       </div>
