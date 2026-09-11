@@ -16,6 +16,7 @@ app.add_middleware(
         "http://localhost:5174",
         "http://127.0.0.1:5173",
         "http://127.0.0.1:5174",
+        "https://freight-intelligence-system.vercel.app",
         "https://freight-intelligence-system-2qyh7ooz5-deepikasingh608s-projects.vercel.app",
         "https://freight-intelligence-system-5kf4zw6hf-deepikasingh608s-projects.vercel.app",
     ],
