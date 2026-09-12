@@ -2,6 +2,8 @@ from typing import List, Optional, Dict, Any
 from pydantic import BaseModel, Field
 
 
+#api/v1/endpoints
+
 class DecisionEvaluationRequest(BaseModel):
     origin: str = Field(default="Australia")
     destination: str = Field(default="Paradip")

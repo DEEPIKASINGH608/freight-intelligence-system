@@ -18,7 +18,7 @@ def optimize_procurement(target_demand_tons, suppliers):
     Supplier ID:
         Supports both 'id' and 'supplier_id'.
     """
-
+#backend/app/api and schemas
     # ---------------------------------------------------------
     # 1. Basic validation
     # ---------------------------------------------------------
