@@ -9,6 +9,8 @@ The AI-Driven Maritime Freight Intelligence & Route Optimization System is an AI
 
 Instead of looking only at the current freight rate, the system combines historical freight behavior, bunker fuel prices, cargo demand, vessel availability, port congestion, seasonality, operational risk, port/vessel constraints, procurement constraints, and financial exposure.
 
+
+
 The final output is an explainable:
 
 CHARTER NOW / WATCH / WAIT
@@ -20,6 +22,109 @@ Problem
 Maritime freight chartering can be highly reactive. Freight rates are affected by cargo demand, vessel supply, fuel prices, port congestion, seasonality, commodity conditions, and operational constraints.
 
 A freight forecast alone is not enough. Even when freight is expected to rise, an available vessel may fail draft, beam, capacity, port-compatibility, or delivery-deadline requirements.
+
+## 1. Freight Intelligence Command Center
+
+The Freight Intelligence Command Center provides a unified interface for
+evaluating an overseas bulk-cargo chartering scenario.
+
+The What-If Scenario Simulator allows decision-makers to modify key
+operational and market parameters, including:
+
+- Freight rate
+- Bunker fuel price
+- Port congestion
+- Cargo demand
+- Vessel availability
+- Weather risk
+- Delivery deadline
+- Cargo quantity
+
+The selected scenario in this demonstration represents a 75,000-ton
+iron-ore shipment from Australia (Port Hedland) to Paradip, covering
+approximately 3,850 nautical miles with a 30-day delivery deadline.
+
+![Freight Intelligence Command Center](docs/screenshots/01-command-center.png)
+
+
+## 2. AI Freight Forecast
+
+The AI Freight Forecast module estimates the freight rate at the 30-day
+forecast horizon using the trained machine learning model.
+
+For this scenario, the current spot freight rate is **$22.50/t**, while the
+30-day AI forecast is **$42.76/t**, representing an expected increase of
+**90.0%**.
+
+The system also provides an empirical **90% prediction interval of
+$38.97–$46.59/t**, allowing decision-makers to understand the uncertainty
+around the forecast. The displayed **Model MAE of 1.88** represents the
+model's mean absolute error from chronological holdout evaluation.
+
+For the demonstrated scenario, the current freight rate is **$22.50/t**,
+while the 30-day forecast is **$42.76/t**, representing an expected
+increase of **90.0%**.
+
+The shaded region represents the model's empirical **90% prediction
+interval**, ranging from **$38.97/t to $46.59/t** at the forecast horizon.
+This provides decision-makers with an indication of forecast uncertainty
+rather than relying only on a single predicted value.
+
+
+![AI Freight Forecast](docs/screenshots/02-ai-freight-forecast.png)
+
+
+
+## 3. Route Risk Engine
+
+The Route Risk Engine evaluates operational risk using congestion, weather,
+vessel supply, and route distance.
+
+The demonstrated scenario produces a Medium Risk score of 45.4/100.
+
+---
+
+## 4. Vessel Optimization
+
+The Vessel Optimization module evaluates vessel capacity, port constraints,
+availability, and delivery deadline before selecting a feasible vessel.
+
+For the demonstrated scenario, MV Iron Pioneer (Panamax) is selected with
+an operational time of 28.7 days against a 30-day deadline.
+
+![Vessel Optimization](docs/screenshots/04-risk-vessel-optimization.png)
+
+---
+
+## 5. Financial Scenario Analysis
+
+The Financial Scenario Analysis module estimates the freight expenditure
+under two scenarios: booking at the current rate and waiting for the
+30-day forecast.
+
+For the demonstrated scenario:
+
+- Book Now: ₹14.01 Cr
+- Wait 30 Days: ₹26.62 Cr
+- Exposure Delta: ₹12.61 Cr
+
+![Financial Scenario Analysis](docs/screenshots/05-financial-analysis.png)
+
+---
+
+## 6. AI Decision Engine
+
+The Decision Engine combines freight forecasting, operational risk,
+vessel feasibility, and financial exposure to produce an actionable
+chartering recommendation.
+
+For the demonstrated scenario, the system recommends **CHARTER NOW**.
+
+![AI Decision Engine](docs/screenshots/03-ai-decision-engine.png)
+
+
+
+
 
 This project therefore connects:
 
