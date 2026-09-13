@@ -493,7 +493,7 @@ cd freight-intelligence-system
 Backend
 
 python -m venv venv
-venv\Scriptsctivate
+venv\Scripts\Activate.ps1
 cd backend
 pip install -r requirements.txt
 uvicorn app.main:app --reload
