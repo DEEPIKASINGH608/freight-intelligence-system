@@ -496,7 +496,7 @@ python -m venv venv
 venv\Scripts\Activate.ps1
 cd backend
 pip install -r requirements.txt
-uvicorn app.main:app --reload
+uvicorn app.main:app --reload (or python -m uvicorn app.main:app --reload)
 
 Backend:
 
