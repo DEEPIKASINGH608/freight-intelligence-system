@@ -82,7 +82,6 @@ vessel supply, and route distance.
 
 The demonstrated scenario produces a Medium Risk score of 45.4/100.
 
----
 
 ## 4. Vessel Optimization
 
@@ -92,9 +91,6 @@ availability, and delivery deadline before selecting a feasible vessel.
 For the demonstrated scenario, MV Iron Pioneer (Panamax) is selected with
 an operational time of 28.7 days against a 30-day deadline.
 
-![Vessel Optimization](docs/screenshots/04-risk-vessel-optimization.png)
-
----
 
 ## 5. Financial Scenario Analysis
 
@@ -108,9 +104,6 @@ For the demonstrated scenario:
 - Wait 30 Days: ₹26.62 Cr
 - Exposure Delta: ₹12.61 Cr
 
-![Financial Scenario Analysis](docs/screenshots/05-financial-analysis.png)
-
----
 
 ## 6. AI Decision Engine
 
