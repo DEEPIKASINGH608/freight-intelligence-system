@@ -1,9 +1,7 @@
 from typing import Dict, Any, Tuple, List
 
 
-# ============================================================
 # PORT CONSTRAINT DATABASE
-# ============================================================
 
 PORT_CONSTRAINTS: Dict[str, Dict[str, Any]] = {
 
@@ -44,9 +42,7 @@ PORT_CONSTRAINTS: Dict[str, Dict[str, Any]] = {
 }
 
 
-# ============================================================
 # NORMALIZE PORT NAME
-# ============================================================
 
 def normalize_port_name(port_name: str) -> str:
     """
@@ -81,9 +77,7 @@ def normalize_port_name(port_name: str) -> str:
     )
 
 
-# ============================================================
 # GET PORT CONSTRAINTS
-# ============================================================
 
 def get_port_constraints(
     port_name: str
@@ -118,9 +112,7 @@ def get_port_constraints(
     }
 
 
-# ============================================================
 # VALIDATE VESSEL AGAINST PORT
-# ============================================================
 
 def validate_vessel_port_compatibility(
     vessel: dict,
@@ -165,9 +157,7 @@ def validate_vessel_port_compatibility(
         vessel.get("capacity_dwt", 0)
     )
 
-    # --------------------------------------------------------
     # DRAFT
-    # --------------------------------------------------------
 
     if draft > port["max_draft_m"]:
 
@@ -177,9 +167,7 @@ def validate_vessel_port_compatibility(
             f"({port['max_draft_m']}m)."
         )
 
-    # --------------------------------------------------------
     # LOA
-    # --------------------------------------------------------
 
     if loa > port["max_loa_m"]:
 
@@ -189,9 +177,7 @@ def validate_vessel_port_compatibility(
             f"({port['max_loa_m']}m)."
         )
 
-    # --------------------------------------------------------
     # BEAM
-    # --------------------------------------------------------
 
     if beam > port["max_beam_m"]:
 
@@ -201,9 +187,7 @@ def validate_vessel_port_compatibility(
             f"({port['max_beam_m']}m)."
         )
 
-    # --------------------------------------------------------
     # CARGO
-    # --------------------------------------------------------
 
     if cargo_type not in port["supported_cargos"]:
 
@@ -213,9 +197,7 @@ def validate_vessel_port_compatibility(
             f"{normalized_port} port."
         )
 
-    # --------------------------------------------------------
     # DWT
-    # --------------------------------------------------------
 
     if dwt > port["max_dwt"]:
 
@@ -231,9 +213,7 @@ def validate_vessel_port_compatibility(
     )
 
 
-# ============================================================
 # EXPLAIN VESSEL PORT FIT
-# ============================================================
 
 def evaluate_vessel_port_fit(
     vessel: dict,

@@ -12,9 +12,7 @@ router = APIRouter()
 vessel_solver = VesselOptimizationSolver()
 
 
-# ============================================================
 # VESSEL OPTIMIZATION
-# ============================================================
 
 class VesselOptimizationRequest(BaseModel):
     """
@@ -77,9 +75,7 @@ def optimize_vessels(payload: VesselOptimizationRequest):
         )
 
 
-# ============================================================
 # PROCUREMENT OPTIMIZATION
-# ============================================================
 
 class ProcurementOptimizationRequest(BaseModel):
     """

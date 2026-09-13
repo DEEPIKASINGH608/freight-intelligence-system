@@ -53,9 +53,8 @@ class DecisionEngine:
     ) -> Dict[str, Any]:
 
         try:
-            # ============================================================
             # 1. STANDARDIZE PAYLOAD
-            # ============================================================
+        # ============================================================
 
             if isinstance(payload, dict):
                 data = payload
@@ -69,9 +68,7 @@ class DecisionEngine:
             else:
                 data = dict(payload)
 
-            # ============================================================
             # 2. EXTRACT INPUTS
-            # ============================================================
 
             cargo_qty = float(data.get("cargo_qty", 75000))
             current_rate = float(data.get("current_rate", 22.50))
@@ -85,9 +82,7 @@ class DecisionEngine:
             delivery_deadline_days = float(data.get("delivery_deadline_days", 25.0))
             route_distance_nm = float(data.get("distance_nm", 3850.0))
             historical_rates = data.get("historical_rates", [])
-            # ============================================================
             # 3. REAL ML FREIGHT FORECAST
-            # ============================================================
 
             forecast_result = self.forecaster.predict_30d_rate(
                 current_rate=current_rate,
@@ -110,9 +105,7 @@ class DecisionEngine:
                 ]
             )
 
-            # ============================================================
             # 4. REAL ROUTE RISK EVALUATION
-            # ============================================================
 
             risk_result = (
                 self.risk_evaluator.evaluate_route_risk(
@@ -135,9 +128,7 @@ class DecisionEngine:
                 "risk_level"
             ]
 
-            # ============================================================
             # 5. VESSEL CHARTER OPTIMIZATION
-            # ============================================================
 
             fleet_dataset = data.get(
                 "available_vessels",
@@ -159,9 +150,7 @@ class DecisionEngine:
                 )
             )
 
-            # ============================================================
             # 6. PROCUREMENT OPTIMIZATION
-            # ============================================================
 
             suppliers = data.get(
                 "suppliers",
@@ -184,9 +173,7 @@ class DecisionEngine:
                     "allocations": []
                 }
 
-            # ============================================================
             # 7. FINANCIAL SCENARIO ANALYSIS
-            # ============================================================
 
             spot_total_usd = (
                 cargo_qty *
@@ -225,10 +212,7 @@ class DecisionEngine:
                 scenario_book_now,
                 2
             )
-
-            # ============================================================
-            # 8. RISK-AWARE DECISION LOGIC
-            # ============================================================
+# 8. RISK-AWARE DECISION LOGIC
 
             # Strong forecast increase:
             # LOW risk    -> CHARTERNOW
@@ -294,9 +278,7 @@ class DecisionEngine:
                     "for immediate action."
                 )
 
-            # ------------------------------------------------------------
             # Vessel feasibility override
-            # ------------------------------------------------------------
 
             if (
                 vessel_optimization_result.get(
@@ -312,15 +294,11 @@ class DecisionEngine:
                     "the current operational constraints."
                 )
 
-            # ============================================================
             # 9. DECISION REASONING
-            # ============================================================
 
             reasons = []
 
-            # ------------------------------------------------------------
             # Forecast reason
-            # ------------------------------------------------------------
 
             if rate_delta_pct >= 5.0:
 
@@ -343,9 +321,7 @@ class DecisionEngine:
                     "the watch range."
                 )
 
-            # ------------------------------------------------------------
             # Risk reason
-            # ------------------------------------------------------------
 
             reasons.append(
                 f"Route risk is {risk_level} "
@@ -353,17 +329,13 @@ class DecisionEngine:
                 f"{risk_score:.1f}/100."
             )
 
-            # ------------------------------------------------------------
             # Risk adjustment reason
-            # ------------------------------------------------------------
 
             reasons.append(
                 risk_adjustment
             )
 
-            # ------------------------------------------------------------
             # Risk drivers
-            # ------------------------------------------------------------
 
             risk_drivers = risk_result.get(
                 "key_drivers",
@@ -377,9 +349,7 @@ class DecisionEngine:
                     "; ".join(risk_drivers)
                 )
 
-            # ------------------------------------------------------------
             # Vessel reason
-            # ------------------------------------------------------------
 
             vessel_status = (
                 vessel_optimization_result.get(
@@ -417,9 +387,7 @@ class DecisionEngine:
                     "an optimal solution."
                 )
 
-            # ------------------------------------------------------------
             # Procurement reason
-            # ------------------------------------------------------------
 
             procurement_status = (
                 procurement_result.get("status")
@@ -453,15 +421,11 @@ class DecisionEngine:
                     "because supplier data was not provided."
                 )
 
-            # ============================================================
             # 10. BUILD FINAL DECISION RESPONSE
-            # ============================================================
 
             return {
 
-                # --------------------------------------------------------
                 # PRIMARY DECISION
-                # --------------------------------------------------------
 
                 "recommended_action":
                     recommended_action,
@@ -472,9 +436,7 @@ class DecisionEngine:
                 "risk_adjustment":
                     risk_adjustment,
 
-                # --------------------------------------------------------
                 # DECISION FACTORS
-                # --------------------------------------------------------
 
                 "decision_factors": {
 
@@ -500,23 +462,17 @@ class DecisionEngine:
                         procurement_status
                 },
 
-                # --------------------------------------------------------
                 # REAL ML FORECAST MODULE
-                # --------------------------------------------------------
 
                 "forecast_module":
                     forecast_result,
 
-                # --------------------------------------------------------
                 # REAL RISK MODULE
-                # --------------------------------------------------------
 
                 "risk_module":
                     risk_result,
 
-                # --------------------------------------------------------
                 # FINANCIAL SCENARIOS
-                # --------------------------------------------------------
 
                 "scenario_analysis": {
 
@@ -533,9 +489,7 @@ class DecisionEngine:
                         "Actual 30-Day ML Forecast"
                 },
 
-                # --------------------------------------------------------
                 # FINANCIAL SUMMARY
-                # --------------------------------------------------------
 
                 "financial_summary": {
 
@@ -567,9 +521,7 @@ class DecisionEngine:
                         usd_to_inr
                 },
 
-                # --------------------------------------------------------
                 # PORT / ROUTE MODULE
-                # --------------------------------------------------------
 
                 "port_constraints_module": {
 
@@ -595,16 +547,12 @@ class DecisionEngine:
                         congestion_days
                 },
 
-                # --------------------------------------------------------
                 # CHARTER OPTIMIZATION MODULE
-                # --------------------------------------------------------
 
                 "charter_optimization_module":
                     vessel_optimization_result,
 
-                # --------------------------------------------------------
                 # PROCUREMENT OPTIMIZATION MODULE
-                # --------------------------------------------------------
 
                 "procurement_optimization":
                     procurement_result

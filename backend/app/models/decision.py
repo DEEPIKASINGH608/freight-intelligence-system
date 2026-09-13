@@ -7,7 +7,6 @@ from sqlalchemy import Column, Integer, String, Float, JSON, DateTime
 from sqlalchemy.sql import func
 from app.database.session import Base
 
-#vessel_solver.py and procurement_solver.py
 
 class DecisionHistory(Base):
     __tablename__ = "decision_history"

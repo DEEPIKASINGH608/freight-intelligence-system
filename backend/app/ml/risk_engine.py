@@ -14,7 +14,6 @@ class RiskEvaluator:
         - key drivers
         - component scores
     """
-#models/decision.py
 
 
     def __init__(self):
@@ -28,9 +27,7 @@ class RiskEvaluator:
         distance_nautical_miles: float,
     ) -> dict:
 
-        # ============================================================
         # 1. INPUT VALIDATION
-        # ============================================================
 
         port_congestion_days = max(
             0.0,
@@ -52,9 +49,7 @@ class RiskEvaluator:
             float(distance_nautical_miles)
         )
 
-        # ============================================================
         # 2. COMPONENT RISK SCORES
-        # ============================================================
 
         # Congestion:
         # 7 or more days = maximum congestion risk.
@@ -102,9 +97,7 @@ class RiskEvaluator:
             ) * 100.0
         )
 
-        # ============================================================
         # 3. WEIGHTED RISK SCORE
-        # ============================================================
 
         risk_score = round(
             (
@@ -119,9 +112,7 @@ class RiskEvaluator:
             1
         )
 
-        # ============================================================
         # 4. RISK LEVEL
-        # ============================================================
 
         if risk_score >= 70:
 
@@ -135,9 +126,7 @@ class RiskEvaluator:
 
             risk_level = "LOW"
 
-        # ============================================================
         # 5. EXPLAINABLE RISK DRIVERS
-        # ============================================================
 
         key_drivers = []
 
@@ -219,9 +208,7 @@ class RiskEvaluator:
                 )
             )
 
-        # ============================================================
-        # 6. FALLBACK EXPLANATION
-        # ============================================================
+       # 6. FALLBACK EXPLANATION
 
         if not key_drivers:
 
@@ -229,10 +216,8 @@ class RiskEvaluator:
                 "Low operational risk across the evaluated factors."
             )
 
-        # ============================================================
         # 7. RETURN RESULT
-        # ============================================================
-
+        
         return {
             "risk_score": risk_score,
 

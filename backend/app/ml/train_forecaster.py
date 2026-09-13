@@ -44,9 +44,7 @@ def calculate_rmse(y_true, predictions):
 
 def train_and_evaluate_forecaster():
 
-    # ---------------------------------------------------------
     # 1. LOCATE DATA
-    # ---------------------------------------------------------
 
     project_root = os.path.abspath(
         os.path.join(os.path.dirname(__file__), "../../../")
@@ -68,17 +66,13 @@ def train_and_evaluate_forecaster():
 
     os.makedirs(models_dir, exist_ok=True)
 
-    # ---------------------------------------------------------
-    # 2. LOAD DATA
-    # ---------------------------------------------------------
+     # 2. LOAD DATA
 
     df = pd.read_csv(data_path)
 
     print(f"Loaded dataset with {len(df)} records.")
 
-    # ---------------------------------------------------------
     # 3. VALIDATE REQUIRED COLUMNS
-    # ---------------------------------------------------------
 
     required_columns = FEATURE_COLS + [TARGET_COL, "date"]
 
@@ -93,9 +87,7 @@ def train_and_evaluate_forecaster():
             f"Dataset is missing required columns: {missing_columns}"
         )
 
-    # ---------------------------------------------------------
     # 4. SORT CHRONOLOGICALLY
-    # ---------------------------------------------------------
 
     df["date"] = pd.to_datetime(df["date"])
 
@@ -108,9 +100,7 @@ def train_and_evaluate_forecaster():
         f"{df['date'].max().date()}"
     )
 
-    # ---------------------------------------------------------
     # 5. REMOVE INVALID ROWS
-    # ---------------------------------------------------------
 
     model_data = df[FEATURE_COLS + [TARGET_COL]].copy()
 
@@ -134,16 +124,12 @@ def train_and_evaluate_forecaster():
             "Not enough valid records available for training."
         )
 
-    # ---------------------------------------------------------
     # 6. FEATURES AND TARGET
-    # ---------------------------------------------------------
 
     X = model_data[FEATURE_COLS]
     y = model_data[TARGET_COL]
 
-    # ---------------------------------------------------------
     # 7. CHRONOLOGICAL TRAIN / TEST SPLIT
-    # ---------------------------------------------------------
 
     split_idx = int(len(model_data) * 0.80)
 
@@ -172,17 +158,12 @@ def train_and_evaluate_forecaster():
         f"{df['date'].iloc[split_idx:].max().date()}"
     )
 
-    # ---------------------------------------------------------
     # 8. NAIVE PERSISTENCE BASELINE
-    # ---------------------------------------------------------
-    #
-    # This asks:
+   # This asks:
     # "How well would we do if we simply predicted
     # the current freight rate?"
-    #
     # Since the dataset contains rate_lag_1/current rate,
     # use the current freight rate as the naive forecast.
-    # ---------------------------------------------------------
 
     naive_predictions = X_test["freight_rate_usd_per_ton"]
 
@@ -206,18 +187,14 @@ def train_and_evaluate_forecaster():
         f"Naive RMSE: ${naive_rmse:.4f}/ton"
     )
 
-    # ---------------------------------------------------------
     # 9. SCALE DATA FOR LINEAR REGRESSION
-    # ---------------------------------------------------------
 
     scaler = StandardScaler()
 
     X_train_scaled = scaler.fit_transform(X_train)
     X_test_scaled = scaler.transform(X_test)
 
-    # ---------------------------------------------------------
     # 10. MODEL CANDIDATES
-    # ---------------------------------------------------------
 
     models = {
         "Linear Regression": LinearRegression(),
@@ -239,9 +216,7 @@ def train_and_evaluate_forecaster():
         ),
     }
 
-    # ---------------------------------------------------------
     # 11. TRAIN AND EVALUATE MODELS
-    # ---------------------------------------------------------
 
     best_model = None
     best_model_name = None
@@ -322,9 +297,7 @@ def train_and_evaluate_forecaster():
             best_model = model
             best_model_name = name
 
-    # ---------------------------------------------------------
     # 12. MODEL IMPROVEMENT OVER NAIVE BASELINE
-    # ---------------------------------------------------------
 
     best_rmse = model_results[best_model_name]["RMSE"]
 
@@ -340,9 +313,7 @@ def train_and_evaluate_forecaster():
         * 100
     )
 
-    # ---------------------------------------------------------
     # 13. PRINT FINAL RESULT
-    # ---------------------------------------------------------
 
     print(
         "\n=================================================="
@@ -382,9 +353,7 @@ def train_and_evaluate_forecaster():
         "=================================================="
     )
 
-    # ---------------------------------------------------------
     # 14. SAVE MODEL
-    # ---------------------------------------------------------
 
     model_path = os.path.join(
         models_dir,
@@ -411,9 +380,7 @@ def train_and_evaluate_forecaster():
         scaler_path
     )
 
-    # ---------------------------------------------------------
     # 15. SAVE METADATA
-    # ---------------------------------------------------------
 
     metadata = {
         "model_type": best_model_name,
@@ -474,10 +441,8 @@ def train_and_evaluate_forecaster():
         metadata_path
     )
 
-    # ---------------------------------------------------------
     # 16. FINAL OUTPUT
-    # ---------------------------------------------------------
-
+    
     print("\nArtifacts saved:")
 
     print(

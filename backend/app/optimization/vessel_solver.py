@@ -47,10 +47,8 @@ class VesselOptimizationSolver:
     def __init__(self):
         pass
 
-    # ================================================================
     # HELPER: STANDARD INVALID RESPONSE
-    # ================================================================
-
+    
     def _invalid_response(
         self,
         message: str,
@@ -74,9 +72,7 @@ class VesselOptimizationSolver:
             ),
         }
 
-    # ================================================================
     # MAIN OPTIMIZATION FUNCTION
-    # ================================================================
 
     def solve_vessel_chartering(
         self,
@@ -90,9 +86,7 @@ class VesselOptimizationSolver:
         cargo_type: str = "iron_ore",
     ) -> dict:
 
-        # ============================================================
         # 1. INPUT VALIDATION
-        # ============================================================
 
         if cargo_required_tons <= 0:
             return self._invalid_response(
@@ -139,9 +133,7 @@ class VesselOptimizationSolver:
                 "shortfall_tons": cargo_required_tons,
             }
 
-        # ============================================================
         # 2. VALIDATE DESTINATION PORT
-        # ============================================================
 
         port_constraints = get_port_constraints(port_name)
 
@@ -179,16 +171,12 @@ class VesselOptimizationSolver:
                 "shortfall_tons": cargo_required_tons,
             }
 
-        # ============================================================
         # 3. INITIALIZE FILTERING
-        # ============================================================
 
         rejected_vessels = []
         feasible_vessels = []
 
-        # ============================================================
         # 4. AVAILABILITY + PORT COMPATIBILITY FILTER
-        # ============================================================
 
         for vessel in available_vessels:
 
@@ -210,9 +198,7 @@ class VesselOptimizationSolver:
                 )
             )
 
-            # --------------------------------------------------------
             # Validate availability ETA
-            # --------------------------------------------------------
 
             if eta_available_days < 0:
 
@@ -232,9 +218,7 @@ class VesselOptimizationSolver:
 
                 continue
 
-            # --------------------------------------------------------
             # Port compatibility
-            # --------------------------------------------------------
 
             is_compatible, violations = (
                 validate_vessel_port_compatibility(
@@ -260,17 +244,13 @@ class VesselOptimizationSolver:
 
                 continue
 
-            # --------------------------------------------------------
             # Vessel is currently available from the fleet perspective
-            # --------------------------------------------------------
 
             feasible_vessels.append(
                 vessel
             )
 
-        # ============================================================
         # 5. CHECK PORT-COMPATIBLE VESSELS
-        # ============================================================
 
         if not feasible_vessels:
 
@@ -292,9 +272,7 @@ class VesselOptimizationSolver:
                 "shortfall_tons": cargo_required_tons,
             }
 
-        # ============================================================
         # 6. CREATE OR-TOOLS SCIP SOLVER
-        # ============================================================
 
         solver = pywraplp.Solver.CreateSolver(
             "SCIP"
@@ -320,9 +298,7 @@ class VesselOptimizationSolver:
 
         vessel_round_trip_days = []
 
-        # ============================================================
         # 7. CALCULATE VOYAGE COST + DEADLINE
-        # ============================================================
 
         for i, vessel in enumerate(
             feasible_vessels
@@ -375,9 +351,7 @@ class VesselOptimizationSolver:
                 )
             )
 
-            # --------------------------------------------------------
-            # Validate vessel parameters
-            # --------------------------------------------------------
+        # Validate vessel parameters
 
             if capacity_dwt <= 0:
 
@@ -431,17 +405,13 @@ class VesselOptimizationSolver:
             if fuel_consumption < 0:
                 fuel_consumption = 0.0
 
-            # --------------------------------------------------------
             # Create binary decision variable
-            # --------------------------------------------------------
 
             x[i] = solver.BoolVar(
                 f"charter_vessel_{i}"
             )
 
-            # --------------------------------------------------------
             # Sailing time
-            # --------------------------------------------------------
 
             transit_hours = (
                 route_distance_nm
@@ -461,19 +431,14 @@ class VesselOptimizationSolver:
                 2.0
             )
 
-            # --------------------------------------------------------
             # Port operations
-            # --------------------------------------------------------
 
             port_operation_days = 3.0
 
-            # --------------------------------------------------------
             # Total operational duration
-            #
             # Availability ETA is included because a vessel that
             # becomes available later cannot be considered instantly
             # ready for the voyage.
-            # --------------------------------------------------------
 
             total_days = (
                 eta_available_days
@@ -497,9 +462,7 @@ class VesselOptimizationSolver:
                 total_days
             )
 
-            # --------------------------------------------------------
             # Deadline constraint
-            # --------------------------------------------------------
 
             if (
                 total_days
@@ -538,9 +501,7 @@ class VesselOptimizationSolver:
                     }
                 )
 
-            # --------------------------------------------------------
             # Charter cost
-            # --------------------------------------------------------
 
             charter_cost = (
                 total_days
@@ -548,12 +509,9 @@ class VesselOptimizationSolver:
                 daily_charter_rate
             )
 
-            # --------------------------------------------------------
             # Fuel cost
-            #
             # Fuel consumption is applied to round-trip sailing time.
             # Availability/waiting time is not treated as sailing fuel.
-            # --------------------------------------------------------
 
             fuel_cost = (
                 round_trip_days
@@ -573,9 +531,7 @@ class VesselOptimizationSolver:
                 total_vessel_cost
             )
 
-        # ============================================================
         # 8. CAPACITY CONSTRAINT
-        # ============================================================
 
         capacity_terms = []
 
@@ -602,9 +558,7 @@ class VesselOptimizationSolver:
             cargo_required_tons
         )
 
-        # ============================================================
         # 9. MINIMUM COST OBJECTIVE
-        # ============================================================
 
         objective = solver.Objective()
 
@@ -619,15 +573,11 @@ class VesselOptimizationSolver:
 
         objective.SetMinimization()
 
-        # ============================================================
         # 10. SOLVE MILP
-        # ============================================================
 
         status = solver.Solve()
 
-        # ============================================================
         # 11. OPTIMAL / FEASIBLE SOLUTION
-        # ============================================================
 
         if (
             status
@@ -647,9 +597,7 @@ class VesselOptimizationSolver:
 
             max_delivery_days = 0.0
 
-            # --------------------------------------------------------
             # Read selected vessels
-            # --------------------------------------------------------
 
             for i in range(
                 num_vessels
@@ -789,9 +737,7 @@ class VesselOptimizationSolver:
                         vessel_total_days[i],
                     )
 
-            # ========================================================
             # 12. CAPACITY UTILIZATION
-            # ========================================================
 
             if total_capacity > 0:
 
@@ -813,9 +759,7 @@ class VesselOptimizationSolver:
 
                 capacity_utilization_pct = 0.0
 
-            # ========================================================
             # 13. SHORTFALL
-            # ========================================================
 
             shortfall_tons = max(
                 0.0,
@@ -824,13 +768,11 @@ class VesselOptimizationSolver:
                 total_capacity,
             )
 
-            # ========================================================
             # 14. USD → INR CRORE
-            #
+
             # Existing project assumption:
             # 1 USD = ₹83
             # 1 crore = ₹10,000,000
-            # ========================================================
 
             total_cost_inr_cr = round(
                 (
@@ -843,9 +785,7 @@ class VesselOptimizationSolver:
                 2,
             )
 
-            # ========================================================
             # 15. RETURN OPTIMAL RESULT
-            # ========================================================
 
             return {
                 "status": "OPTIMAL",
@@ -938,9 +878,7 @@ class VesselOptimizationSolver:
                     ),
             }
 
-        # ============================================================
         # 16. INFEASIBLE SOLUTION
-        # ============================================================
 
         else:
 

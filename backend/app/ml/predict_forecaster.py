@@ -183,7 +183,6 @@ class FreightForecaster:
             self.FEATURE_COLUMNS
         ]
 
-        # IMPORTANT:
         # This is the actual training target.
         y_test = test_df[
             self.TARGET_COLUMN
@@ -231,16 +230,11 @@ class FreightForecaster:
             )
         )
 
-        # -----------------------------------------------------
         # Empirical 90% forecast interval
-        # -----------------------------------------------------
-        #
         # Use the 5th and 95th percentiles of historical
         # out-of-sample signed residuals.
-        #
         # This creates a data-derived, potentially asymmetric
         # uncertainty interval rather than a hardcoded range.
-        # -----------------------------------------------------
 
         lower_residual = float(
             np.percentile(
@@ -430,9 +424,7 @@ class FreightForecaster:
             columns=self.FEATURE_COLUMNS,
         )
 
-        # -----------------------------------------------------
-        # REAL MODEL INFERENCE
-        # -----------------------------------------------------
+         # REAL MODEL INFERENCE
 
         prediction = float(
             self.model.predict(
@@ -469,9 +461,7 @@ class FreightForecaster:
         else:
             recommendation = "WATCH"
 
-        # -----------------------------------------------------
         # METRICS + FORECAST UNCERTAINTY
-        # -----------------------------------------------------
 
         evaluation = (
             self._calculate_metrics_and_uncertainty()
@@ -526,10 +516,8 @@ class FreightForecaster:
                 ),
             }
 
-        # -----------------------------------------------------
         # FORECAST CURVE FOR DASHBOARD
-        # -----------------------------------------------------
-
+        
         if forecast_range is not None:
             forecast_curve = [
                 {

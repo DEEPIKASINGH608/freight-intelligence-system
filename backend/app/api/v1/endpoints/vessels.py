@@ -3,7 +3,6 @@ from fastapi import APIRouter
 router = APIRouter()
 
 
-#main.py
 
 
 # Default mock fleet data for vessel queries
