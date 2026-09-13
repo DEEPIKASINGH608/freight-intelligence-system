@@ -87,10 +87,7 @@ export default function App() {
     }));
   };
 
-  /*
-   * Everything below is read from the backend response.
-   * No local risk/decision/forecast formula is used.
-   */
+
 
   const forecast = data?.forecast_module || {};
   const risk = data?.risk_module || {};
@@ -110,7 +107,7 @@ export default function App() {
       ? risk.risk_score
       : null;
 
-  /* ---------------- FORECAST ---------------- */
+  /* FORECAST*/
 
   const currentRate = Number(
     forecast?.current_rate_usd ??
@@ -145,7 +142,7 @@ export default function App() {
   const bandHigh =
     forecast?.forecast_range?.upper_usd ?? null;
 
-  /* ---------------- VESSEL ---------------- */
+  /* VESSEL */
 
   /*
    * Backend returns selected_vessels as an array.
